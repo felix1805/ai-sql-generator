@@ -12,7 +12,7 @@ const App = () => {
   const [chat, setChat] = useState<ChatData[]>([])
   const getQuery = async () => {
     try {
-      const options = {
+      const options: RequestInit = {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -22,7 +22,7 @@ const App = () => {
         })
       }
       const response = await fetch("http://localhost:8000/completions", options)
-      const data = await response.json()
+      const data: ChatData = await response.json()
       console.log(data)
       const userMessage = {
         role: "user",
@@ -33,17 +33,23 @@ const App = () => {
       console.error(error)
     }
   }
-  console.log(chat)
+
+  const clearChat = () => {
+    setValue("")
+    setChat([])
+  }
 
   const filteredUserMessages = chat.filter(message => message.role === "user")
+  const latestCode = chat.filter(message => message.role === "assistant").pop()
+
   return (
     <div className="app">
-      <MessagesDisplay userMessages ={filteredUserMessages} />
-      <input value={value} onChange={e => setValue(e.target.value)}/>
-      <CodeDisplay />
+      <MessagesDisplay userMessages={filteredUserMessages} />
+      <input value={value} onChange={e => setValue(e.target.value)} />
+      <CodeDisplay text={latestCode?.content || ""} />
       <div className="button-container">
         <button id="get-query" onClick={getQuery}>Get Query!</button>
-        <button id="clear-chat">Clear Chat</button>
+        <button id="clear-chat" onClick={clearChat}>Clear Chat</button>
       </div>
     </div>
   );
